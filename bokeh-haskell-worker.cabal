@@ -43,7 +43,7 @@ build-type:          Simple
 -- extra-source-files:
 
 -- Constraint on the version of Cabal needed to build this package.
-cabal-version:       >=1.10
+cabal-version:       >= 1.10
 
 
 executable bokeh-haskell-worker
@@ -57,7 +57,7 @@ executable bokeh-haskell-worker
   -- other-extensions:
 
   -- Other library packages from which modules are imported.
-  build-depends: base >=4.7 && <4.8
+  build-depends: base >= 4.8 && < 5
                , aeson
                , zeromq4-haskell
 
