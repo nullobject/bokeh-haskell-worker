@@ -1,13 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 import Control.Applicative ((<$>), (<*>), empty)
-import Control.Monad
+import Control.Monad (forever, when)
 import Data.Aeson
-import Data.Maybe
-import System.Exit
-import System.IO
-import System.Environment
-import System.ZMQ4.Monadic
+import Data.Maybe (fromJust)
+import System.Environment (getArgs)
+import System.Exit (exitFailure)
+import System.IO (hPutStrLn, stderr)
+import System.ZMQ4.Monadic (Rep(..), connect, liftIO, receive, runZMQ, send', socket)
 
 data Request = Request
   { requestId      :: String
@@ -22,11 +22,11 @@ data Response = Response
   } deriving (Show)
 
 instance FromJSON Request where
-  parseJSON (Object v) = Request <$>
-                         v .: "id" <*>
-                         v .: "request" <*>
-                         v .: "data"
-  parseJSON _          = empty
+  parseJSON (Object v) = Request
+    <$> v .: "id"
+    <*> v .: "request"
+    <*> v .: "data"
+  parseJSON _ = empty
 
 instance ToJSON Response where
   toJSON (Response id response body) = object
@@ -38,9 +38,11 @@ instance ToJSON Response where
 main :: IO ()
 main = do
   args <- getArgs
+
   when (length args < 1) $ do
     hPutStrLn stderr "usage: display <address>"
     exitFailure
+
   runZMQ $ do
     s <- socket Rep
     connect s $ args !! 0
