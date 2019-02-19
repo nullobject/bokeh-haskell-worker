@@ -7,7 +7,7 @@ import Data.Maybe (fromJust)
 import System.Environment (getArgs)
 import System.Exit (exitFailure)
 import System.IO (hPutStrLn, stderr)
-import System.ZMQ4.Monadic (Rep(..), connect, liftIO, receive, runZMQ, send', socket)
+import System.ZMQ4.Monadic (Rep(..), Sender, Socket, ZMQ, connect, liftIO, receive, runZMQ, send', socket)
 
 data Request = Request
   { requestId      :: String
@@ -51,6 +51,7 @@ main = do
       let request = decodeStrict json
       handleRequest s $ fromJust request
 
+handleRequest :: Sender t => Socket z t -> Request -> ZMQ z ()
 handleRequest s request = do
   liftIO . print $ request
   let response = Response (requestId request) "completed" (reverse . requestBody $ request)
